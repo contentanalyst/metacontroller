@@ -1,0 +1,6 @@
+# Who owns what.
+# See https://help.github.com/articles/about-codeowners/ for valid syntax for entries.
+
+# _underscore/overscore owns metacontroller
+
+* @contentanalyst/underscore @contentanalyst/overscore

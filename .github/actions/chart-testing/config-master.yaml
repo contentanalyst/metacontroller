@@ -1,0 +1,8 @@
+target-branch: 'master'
+all: true
+chart-dirs:
+  - 'chart'
+chart-yaml-schema: '.github/actions/chart-testing/etc/chart_schema.yaml'
+lint-conf: '.github/actions/chart-testing/etc/lintconf.yaml'
+validate-maintainers: 'false'
+

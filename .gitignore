@@ -4,3 +4,4 @@
 /hack/bin/
 .*.swp
 .history
+.DS_Store
