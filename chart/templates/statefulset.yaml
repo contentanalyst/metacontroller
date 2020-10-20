@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "metacontroller.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "metacontroller.name" . }}
+    helm.sh/chart: {{ include "metacontroller.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "metacontroller.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: ""
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "{{ .Values.injectIstioSidecar }}"
+      labels:
+        app.kubernetes.io/name: {{ include "metacontroller.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "metacontroller.name" . }}
+      containers:
+      - name: {{ include "metacontroller.name" . }}
+        image: {{ .Values.image.registry }}/r1/c4/metacontroller:v{{ .Chart.Version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/usr/bin/metacontroller"]
+    {{- if .Values.rbac.psp.enabled }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            add: ["NET_ADMIN"]
+    {{- end }}
+    {{- with .Values.args }}
+        args:
+          {{- toYaml . | nindent 10 }}
+    {{- end }}
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+  volumeClaimTemplates: []

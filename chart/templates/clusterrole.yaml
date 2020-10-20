@@ -1,0 +1,52 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "metacontroller.fullname" . }}-aggregate
+  labels:
+    app.kubernetes.io/name: {{ include "metacontroller.name" . }}
+    helm.sh/chart: {{ include "metacontroller.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      rbac.metacontroller.k8s.io/aggregate: "true"
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "metacontroller.fullname" . }}
+  labels:
+    rbac.metacontroller.k8s.io/aggregate: "true"
+    app.kubernetes.io/name: {{ include "metacontroller.name" . }}
+    helm.sh/chart: {{ include "metacontroller.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - {{ .Values.crd.group }}
+  resources: ["compositecontrollers", "decoratorcontrollers", "controllerrevisions"]
+  verbs: ["get", "watch", "list"]
+---
+{{- if .Values.rbac.psp.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "metacontroller.fullname" . }}-custom-c4
+  labels:
+    rbac.metacontroller.k8s.io/aggregate: "true"
+    app.kubernetes.io/name: {{ include "metacontroller.name" . }}
+    helm.sh/chart: {{ include "metacontroller.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - 25-partially-restricted-istio
+  verbs:
+  - use
+{{- end }}

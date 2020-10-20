@@ -1,0 +1,47 @@
+# Default values for metacontroller.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  registry:
+  pullPolicy: Always
+
+nameOverride: "metacontroller"
+fullnameOverride: "metacontroller"
+
+namespace: "r1-c4"
+
+injectIstioSidecar: true
+
+crd:
+  group: metacontroller.k8s.io
+  version: v1alpha1
+  scope: Cluster
+
+args:
+  - --logtostderr
+  - -v=4
+  - --discovery-interval=20s
+
+imagePullSecrets:
+  - name: acr-auth
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/role
+          operator: In
+          values:
+          - agent
+        - key: beta.kubernetes.io/os
+          operator: In
+          values:
+          - linux
+
+rbac:
+  psp:
+    enabled: true
