@@ -29,6 +29,13 @@ spec:
         image: {{ .Values.image.registry }}/r1/c4/metacontroller:v{{ .Chart.Version }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command: ["/usr/bin/metacontroller"]
+        resources:
+          requests:
+            memory: "500m"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "2"
     {{- if .Values.rbac.psp.enabled }}
         securityContext:
           allowPrivilegeEscalation: false
